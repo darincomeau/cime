@@ -2008,23 +2008,11 @@ directory, NOT in this subdirectory."""
             run_misc_suffix = custom_run_misc_suffix
 
         # special case for aprun
-        if (
-            executable is not None
-            and "aprun" in executable
-            and not "theta" in self.get_value("MACH")
-        ):
-            aprun_args, num_nodes = get_aprun_cmd_for_case(
-                self, run_exe, overrides=overrides
-            )[0:2]
-            if job in ("case.run", "case.test"):
-                expect(
-                    (num_nodes + self.spare_nodes) == self.num_nodes,
-                    "Not using optimized num nodes",
-                )
-            return self.get_resolved_value(
-                executable + aprun_args + " " + run_misc_suffix,
-                allow_unresolved_envvars=allow_unresolved_envvars,
-            )
+        if executable is not None and "aprun" in executable and not "theta" in self.get_value("MACH") and not "onyx" in self.get_value("MACH"):
+            aprun_args, num_nodes = get_aprun_cmd_for_case(self, run_exe, overrides=overrides)[0:2]
+            if job in ("case.run","case.test"):
+                expect( (num_nodes + self.spare_nodes) == self.num_nodes, "Not using optimized num nodes")
+            return self.get_resolved_value(executable + aprun_args + " " + run_misc_suffix, allow_unresolved_envvars=allow_unresolved_envvars)
 
         else:
             mpi_arg_string = " ".join(mpi_arg_list)
