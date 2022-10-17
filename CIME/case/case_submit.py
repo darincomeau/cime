@@ -50,7 +50,13 @@ def _submit(
         hasMediator = False
 
     # Check if CONTINUE_RUN value makes sense
-    if job != "case.test" and case.get_value("CONTINUE_RUN") and hasMediator:
+    # if submitted with a prereq don't do this check
+    if (
+        job != "case.test"
+        and case.get_value("CONTINUE_RUN")
+        and hasMediator
+        and not prereq
+    ):
         rundir = case.get_value("RUNDIR")
         expect(
             os.path.isdir(rundir),
@@ -59,10 +65,10 @@ def _submit(
         # only checks for the first instance in a multidriver case
         if case.get_value("COMP_INTERFACE") == "nuopc":
             rpointer = "rpointer.cpl"
-        elif case.get_value("MULTI_DRIVER"):
-            rpointer = "rpointer.drv_0001"
         else:
             rpointer = "rpointer.drv"
+        if case.get_value("MULTI_DRIVER"):
+            rpointer = rpointer + "_0001"
         expect(
             os.path.exists(os.path.join(rundir, rpointer)),
             "CONTINUE_RUN is true but this case does not appear to have restart files staged in {} {}".format(
